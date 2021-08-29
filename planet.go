@@ -51,12 +51,9 @@ func (c *Client) Planets(page int) (*apiResponse, error) {
 
 // AllPlanets retrieves all the planets as a paginated apiResponse
 func (c *Client) AllPlanets() ([]Planet, error) {
-	response := apiResponse{
-		Client: c,
-	}
 
 	var planets []Planet
-	resp, err := response.get("planets/")
+	resp, err := c.Planets(1)
 	if err != nil {
 		return []Planet{}, err
 	}
