@@ -1,6 +1,8 @@
 package swapi
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // A Planet is a large mass, planet or planetoid in the Star Wars Universe, at the time of 0 ABY.
 type Planet struct {
@@ -34,4 +36,32 @@ func (c *Client) Planet(id int) (Planet, error) {
 	}
 
 	return planet, nil
+}
+
+// Planets retrieves all the planets as a paginated apiResponse
+func (c *Client) Planets(page int) (*apiResponse, error) {
+	response := apiResponse{
+		Client: c,
+	}
+
+	path := fmt.Sprintf("planets/?page=%d", page)
+
+	return response.get(path)
+}
+
+// AllPlanets retrieves all the planets as a paginated apiResponse
+func (c *Client) AllPlanets() ([]Planet, error) {
+	response := apiResponse{
+		Client: c,
+	}
+
+	var planets []Planet
+	resp, err := response.get("planets/")
+	if err != nil {
+		return []Planet{}, err
+	}
+
+	//planets = append(planets, parseResult(resp.results))
+	fmt.Println(resp)
+	return planets, err
 }
