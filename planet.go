@@ -38,7 +38,7 @@ func (c *Client) Planet(id int) (Planet, error) {
 	return planet, nil
 }
 
-// Planets retrieves all the planets as a paginated apiResponse
+// Planets retrieves the planets as a paginated apiResponse
 func (c *Client) Planets(page int) (*apiResponse, error) {
 	response := apiResponse{
 		Client: c,
@@ -58,7 +58,14 @@ func (c *Client) AllPlanets() ([]Planet, error) {
 		return []Planet{}, err
 	}
 
-	//planets = append(planets, parseResult(resp.results))
+	for _, r := range resp.Results {
+		planet := Planet{}
+		if err := parseResult(r, planet); err != nil {
+			return []Planet{}, err
+		}
+		planets = append(planets, planet)
+	}
 	fmt.Println(resp)
+
 	return planets, err
 }

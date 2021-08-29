@@ -9,9 +9,15 @@ import (
 func main() {
 	c := swapi.DefaultClient
 
-	if planets, err := c.AllPlanets(); err == nil {
-		fmt.Println("planets : ", planets)
+	if atst, err := c.Vehicle(19); err == nil {
+		fmt.Println("name: ", atst.Name)
+		fmt.Println("model:", atst.Model)
 	}
 
+	planets, err := c.AllPlanets()
+	if err != nil {
+		panic(err)
+	}
 
+	fmt.Println("planets : ", planets)
 }

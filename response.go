@@ -1,21 +1,32 @@
 package swapi
 
-import "strings"
+import (
+	"encoding/json"
+	"strings"
+)
 
 type apiResponse struct {
-	count int `json:"count"`
-	next string `json:"next"`
-	previous string `json:"previous"`
-	results []interface{} `json:"result"`
-	*Client
+	Count int `json:"count"`
+	Next string `json:"GetNext"`
+	Previous string `json:"GetPrevious"`
+	Results []interface{} `json:"results"`
+	*Client `json:"client,omitempty"`
 }
 
 func (r *apiResponse) HasNext() bool {
-	return r.next != ""
+	return r.Next != ""
 }
 
 func (r *apiResponse) HasPrevious() bool {
-	return r.next != ""
+	return r.Previous != ""
+}
+
+func (r *apiResponse) GetNext() (*apiResponse, error) {
+	return r.get(r.Next)
+}
+
+func (r *apiResponse) GetPrevious() (*apiResponse, error) {
+	return r.get(r.Previous)
 }
 
 func (r *apiResponse) get(path string) (*apiResponse, error) {
@@ -26,19 +37,17 @@ func (r *apiResponse) get(path string) (*apiResponse, error) {
 		return r, err
 	}
 
-	var resp apiResponse
-	if _, err = r.do(req, &resp); err != nil {
+	if _, err = r.do(req, r); err != nil {
 		return r, err
 	}
-	resp.Client = r.Client
 
-	return &resp, nil
+	return r, nil
 }
 
-func (r *apiResponse) Next() (*apiResponse, error) {
-	return r.get(r.next)
-}
-
-func (r *apiResponse) Previous() (*apiResponse, error) {
-	return r.get(r.previous)
+func parseResult(r interface{}, out interface{}) error {
+	jString, _ := json.Marshal(r)
+	if err := json.Unmarshal(jString, out); err != nil {
+		return err
+	}
+	return nil
 }
