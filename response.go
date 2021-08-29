@@ -19,7 +19,8 @@ func (r *apiResponse) HasPrevious() bool {
 }
 
 func (r *apiResponse) get(path string) (*apiResponse, error) {
-	endpoint := strings.Split(path, r.basePath)[1]
+	splitPath := strings.Split(path, r.basePath)
+	endpoint := splitPath[len(splitPath)-1]
 	req, err := r.newRequest(endpoint)
 	if err != nil {
 		return r, err
