@@ -1,14 +1,15 @@
 package swapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"strings"
 )
 
 type apiResponse struct {
 	Count int `json:"count"`
-	Next string `json:"GetNext"`
-	Previous string `json:"GetPrevious"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
 	Results []interface{} `json:"results"`
 	*Client `json:"client,omitempty"`
 }
@@ -37,16 +38,20 @@ func (r *apiResponse) get(path string) (*apiResponse, error) {
 		return r, err
 	}
 
-	if _, err = r.do(req, r); err != nil {
-		return r, err
+	resp := &apiResponse{
+		Client: r.Client,
+	}
+	if _, err = r.do(req, resp); err != nil {
+		return nil, err
 	}
 
-	return r, nil
+	return resp, nil
 }
 
 func parseResult(r interface{}, out interface{}) error {
 	jString, _ := json.Marshal(r)
-	if err := json.Unmarshal(jString, out); err != nil {
+	jBytes := bytes.NewReader(jString)
+	if err := json.NewDecoder(jBytes).Decode(out); err != nil {
 		return err
 	}
 	return nil

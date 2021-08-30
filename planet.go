@@ -49,7 +49,7 @@ func (c *Client) Planets(page int) (*apiResponse, error) {
 	return response.get(path)
 }
 
-// AllPlanets retrieves all the planets as a paginated apiResponse
+// AllPlanets retrieves all the planets as an array
 func (c *Client) AllPlanets() ([]Planet, error) {
 
 	var planets []Planet
@@ -60,12 +60,28 @@ func (c *Client) AllPlanets() ([]Planet, error) {
 
 	for _, r := range resp.Results {
 		planet := Planet{}
-		if err := parseResult(r, planet); err != nil {
+		if err := parseResult(r, &planet); err != nil {
 			return []Planet{}, err
 		}
 		planets = append(planets, planet)
 	}
+
 	fmt.Println(resp)
+
+	for resp.HasNext() {
+		resp, err = resp.GetNext()
+		if err != nil {
+			return []Planet{}, err
+		}
+
+		for _, r := range resp.Results {
+			planet := Planet{}
+			if err := parseResult(r, &planet); err != nil {
+				return []Planet{}, err
+			}
+			planets = append(planets, planet)
+		}
+	}
 
 	return planets, err
 }
